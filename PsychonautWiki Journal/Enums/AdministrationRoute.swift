@@ -35,6 +35,33 @@ enum AdministrationRoute: String, Codable, CaseIterable, Identifiable {
         rawValue
     }
 
+    var displayName: String {
+        switch self {
+        case .oral:
+            return "Oral"
+        case .sublingual:
+            return "Sublingual"
+        case .buccal:
+            return "Buccal"
+        case .insufflated:
+            return "Insufflated"
+        case .rectal:
+            return "Rectal"
+        case .transdermal:
+            return "Transdermal"
+        case .subcutaneous:
+            return "Subcutaneous"
+        case .intramuscular:
+            return "Intramuscular"
+        case .intravenous:
+            return "Intravenous"
+        case .smoked:
+            return "Smoked"
+        case .inhaled:
+            return "Inhaled"
+        }
+    }
+
     var clarification: String {
         switch self {
         case .oral:

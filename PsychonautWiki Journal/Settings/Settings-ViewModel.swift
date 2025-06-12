@@ -16,6 +16,7 @@
 
 import CoreData
 import Foundation
+import CloudKitSyncMonitor
 
 extension SettingsScreen {
     @MainActor
@@ -25,6 +26,9 @@ extension SettingsScreen {
         @Published var isShowingToast = false
         @Published var isShowingSuccessToast = false
         @Published var toastMessage = ""
+
+        // CloudKitSyncMonitor for real-time sync status
+        private let syncMonitor = SyncMonitor.default
 
         func exportData() {
             let experienceFetchRequest = Experience.fetchRequest()
@@ -188,5 +192,32 @@ extension SettingsScreen {
             isShowingToast = true
             isShowingSuccessToast = false
         }
+
+        #if os(iOS)
+        // Computed properties using CloudKitSyncMonitor
+        var syncStateSummary: SyncMonitor.SyncSummaryStatus {
+            syncMonitor.syncStateSummary
+        }
+
+        var hasSyncError: Bool {
+            syncMonitor.hasSyncError
+        }
+
+        var isNotSyncing: Bool {
+            syncMonitor.isNotSyncing
+        }
+
+        var setupState: SyncMonitor.SyncState {
+            syncMonitor.setupState
+        }
+
+        var importState: SyncMonitor.SyncState {
+            syncMonitor.importState
+        }
+
+        var exportState: SyncMonitor.SyncState {
+            syncMonitor.exportState
+        }
+        #endif
     }
 }

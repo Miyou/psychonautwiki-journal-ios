@@ -16,12 +16,13 @@
 
 import CoreData
 import SwiftUI
+import CloudKit
 
 struct PersistenceController {
     static let shared = PersistenceController()
     static var preview: PersistenceController = .init(inMemory: true)
 
-    let container: NSPersistentContainer
+    let container: NSPersistentCloudKitContainer
     static let needsToSeeWelcomeKey = "needsToSeeWelcome"
     static let isEyeOpenKey1 = "isEyeOpen"
     static let isEyeOpenKey2 = "isEyeOpen2"
@@ -40,23 +41,92 @@ struct PersistenceController {
     }
 
     private static let modelName = "Main"
+    private static let appGroupIdentifier = "group.com.isaakhanimann.journal"
 
     init(inMemory: Bool = false) {
-        container = NSPersistentContainer(name: PersistenceController.modelName)
-        let description = container.persistentStoreDescriptions.first
+        container = NSPersistentCloudKitContainer(name: PersistenceController.modelName)
 
-#if APP_WIDGET
-        description?.setOption(true as NSNumber, forKey: NSReadOnlyPersistentStoreOption)
-#endif
         if inMemory {
-            description?.url = URL(fileURLWithPath: "/dev/null")
+            container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
+        } else {
+            // Configure for CloudKit and App Groups
+            guard let description = container.persistentStoreDescriptions.first else {
+                fatalError("Failed to retrieve a persistent store description.")
+            }
+
+            // Set up App Group shared container
+            if let appGroupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: PersistenceController.appGroupIdentifier) {
+                let storeURL = appGroupURL.appendingPathComponent("\(PersistenceController.modelName).sqlite")
+                description.url = storeURL
+            }
+
+            // Configure CloudKit and history tracking
+            description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+            description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+
+            #if os(iOS) || os(watchOS)
+            // CloudKit configuration for iOS and watchOS
+            let cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: "iCloud.com.isaakhanimann.journal")
+            cloudKitContainerOptions.databaseScope = .private
+            description.cloudKitContainerOptions = cloudKitContainerOptions
+            #endif
+
+            #if APP_WIDGET
+            description.setOption(true as NSNumber, forKey: NSReadOnlyPersistentStoreOption)
+            #endif
         }
+
         container.loadPersistentStores { _, error in
             if let error = error {
                 fatalError("Failed to load Core Data stack: \(error)")
             }
         }
+
+        // Configure for synchronization
         viewContext.automaticallyMergesChangesFromParent = true
+        viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+
+        // Set up proper remote change notifications following Apple's best practices
+        let viewContext = self.viewContext
+
+        // Listen for remote changes from CloudKit
+        NotificationCenter.default.addObserver(
+            forName: .NSPersistentStoreRemoteChange,
+            object: container.persistentStoreCoordinator,
+            queue: .main
+        ) { notification in
+            print("📡 Remote change notification received")
+
+            // Process the remote change on the main context
+            viewContext.perform {
+                // Merge changes from the persistent store coordinator
+                viewContext.mergeChanges(fromContextDidSave: notification)
+                print("🔄 Remote changes merged into view context")
+
+                // Ensure all fault objects are refreshed
+                viewContext.refreshAllObjects()
+                print("🔄 All objects refreshed")
+            }
+        }
+
+        // Also listen for context did save notifications to catch all changes
+        NotificationCenter.default.addObserver(
+            forName: .NSManagedObjectContextDidSave,
+            object: nil,
+            queue: .main
+        ) { notification in
+            guard let context = notification.object as? NSManagedObjectContext,
+                  context != viewContext,
+                  context.persistentStoreCoordinator == viewContext.persistentStoreCoordinator else {
+                return
+            }
+
+            print("📡 Context save notification from background context")
+            viewContext.perform {
+                viewContext.mergeChanges(fromContextDidSave: notification)
+                print("🔄 Background changes merged into view context")
+            }
+        }
     }
 
     func deleteEverything() throws {

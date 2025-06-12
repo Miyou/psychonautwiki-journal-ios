@@ -16,6 +16,7 @@
 
 import SwiftUI
 import AlertToast
+import CloudKitSyncMonitor
 
 @main
 struct JournalApp: App {
@@ -38,6 +39,10 @@ struct JournalApp: App {
                             displayMode: .alert,
                             type: toastViewModel.isSuccessToast ? .complete(.green) : .error(.red),
                             title: toastViewModel.toastMessage)
+                    }
+                    .onAppear {
+                        // Initialize CloudKit sync monitoring
+                        SyncMonitor.default.startMonitoring()
                     }
             }
         }

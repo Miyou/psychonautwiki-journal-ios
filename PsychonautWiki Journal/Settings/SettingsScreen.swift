@@ -17,6 +17,7 @@
 import AlertToast
 import SwiftUI
 import AppIntents
+import CloudKitSyncMonitor
 
 struct SettingsScreen: View {
     @AppStorage(PersistenceController.isEyeOpenKey2) var isEyeOpen: Bool = false
@@ -67,6 +68,7 @@ struct SettingsScreen: View {
             deleteEverything: {
                 viewModel.deleteEverything()
             },
+            viewModel: viewModel,
             isShowingToast: $viewModel.isShowingToast,
             isSuccessToast: $viewModel.isShowingSuccessToast,
             toastMessage: $viewModel.toastMessage,
@@ -92,13 +94,45 @@ struct SettingsContent: View {
     let exportData: () -> Void
     let importData: (Data) -> Void
     let deleteEverything: () -> Void
+    let viewModel: SettingsScreen.ViewModel
     @Binding var isShowingToast: Bool
     @Binding var isSuccessToast: Bool
     @Binding var toastMessage: String
     @Binding var lockTimeOption: LockTimeOption
 
+    #if os(iOS)
+    @StateObject private var syncMonitor = SyncMonitor.default
+    #endif
+
     @State private var isShowingDeleteConfirmation = false
     @State private var isShowingImportAlert = false
+
+    #if os(iOS)
+    var syncStatusText: String {
+        // Simple description to avoid enum case issues
+        return syncMonitor.syncStateSummary.description
+    }
+
+    func stateText(for state: SyncMonitor.SyncState) -> String {
+        switch state {
+        case .notStarted:
+            return "Not started"
+        case .inProgress(started: let date):
+            return "In progress since \(dateFormatter.string(from: date))"
+        case let .succeeded(started: _, ended: endDate):
+            return "Succeeded at \(dateFormatter.string(from: endDate))"
+        case let .failed(started: _, ended: endDate, error: _):
+            return "Failed at \(dateFormatter.string(from: endDate))"
+        }
+    }
+
+    var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return formatter
+    }()
+    #endif
 
     var body: some View {
         List {
@@ -188,6 +222,91 @@ struct SettingsContent: View {
                     }
                 )
             }
+            #if os(iOS)
+            Section(
+                header: Text("iCloud Synchronization")
+            ) {
+                // Sync status summary with icon
+                HStack {
+                    Image(systemName: syncMonitor.syncStateSummary.symbolName)
+                        .foregroundColor(syncMonitor.syncStateSummary.symbolColor)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Sync Status")
+                            .font(.headline)
+                        Text(syncStatusText)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Spacer()
+                }
+                .padding(.vertical, 4)
+
+                // Detailed sync states
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Detailed Status:")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    HStack {
+                        Text("Setup:")
+                            .font(.caption)
+                            .frame(width: 60, alignment: .leading)
+                        Text(stateText(for: viewModel.setupState))
+                            .font(.caption.monospaced())
+                        Spacer()
+                    }
+
+                    HStack {
+                        Text("Import:")
+                            .font(.caption)
+                            .frame(width: 60, alignment: .leading)
+                        Text(stateText(for: viewModel.importState))
+                            .font(.caption.monospaced())
+                        Spacer()
+                    }
+
+                    HStack {
+                        Text("Export:")
+                            .font(.caption)
+                            .frame(width: 60, alignment: .leading)
+                        Text(stateText(for: viewModel.exportState))
+                            .font(.caption.monospaced())
+                        Spacer()
+                    }
+                }
+                .padding(.vertical, 4)
+
+                // Error information
+                if viewModel.hasSyncError {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Sync Errors:")
+                            .font(.caption)
+                            .foregroundColor(.red)
+
+                        if let setupError = syncMonitor.setupError {
+                            Text("Setup: \(setupError.localizedDescription)")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                        }
+
+                        if let importError = syncMonitor.importError {
+                            Text("Import: \(importError.localizedDescription)")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                        }
+
+                        if let exportError = syncMonitor.exportError {
+                            Text("Export: \(exportError.localizedDescription)")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+            #endif
             Section("Communication") {
                 if isEyeOpen {
                     NavigationLink(value: GlobalNavigationDestination.shareApp) {
@@ -297,6 +416,7 @@ struct SettingsContent: View {
         exportData: {},
         importData: { _ in },
         deleteEverything: {},
+        viewModel: SettingsScreen.ViewModel(),
         isShowingToast: .constant(false),
         isSuccessToast: .constant(false),
         toastMessage: .constant(""),

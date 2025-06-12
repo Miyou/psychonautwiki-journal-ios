@@ -74,11 +74,6 @@
         <attribute name="colorAsText" optional="YES" attributeType="String"/>
         <attribute name="substanceName" optional="YES" attributeType="String"/>
         <relationship name="ingestions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Ingestion" inverseName="substanceCompanion" inverseEntity="Ingestion"/>
-        <uniquenessConstraints>
-            <uniquenessConstraint>
-                <constraint value="substanceName"/>
-            </uniquenessConstraint>
-        </uniquenessConstraints>
     </entity>
     <entity name="TimedNote" representedClassName="TimedNote" syncable="YES" codeGenerationType="class">
         <attribute name="colorAsText" optional="YES" attributeType="String"/>
