@@ -63,8 +63,10 @@ struct ContentView: View {
                 }
             }
             .sheet(isPresented: $showingAddIngestionSheet) {
-                AddIngestionView()
-                    .environment(\.managedObjectContext, self.viewContext)
+                NavigationView {
+                    SubstanceSelectionView()
+                        .environment(\.managedObjectContext, self.viewContext)
+                }
             }
         }
     }

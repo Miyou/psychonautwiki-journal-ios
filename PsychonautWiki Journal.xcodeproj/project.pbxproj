@@ -12,6 +12,8 @@
 		4C3139122DF84E5000647533 /* AdministrationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF76CAB27D90F6A00945587 /* AdministrationRoute.swift */; };
 		4C3139142DF84E9200647533 /* Main.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EAE4715626CBA664009FB0EC /* Main.xcdatamodeld */; };
 		4C766A6B2DFB387700A88905 /* CloudKitSyncMonitor in Frameworks */ = {isa = PBXBuildFile; productRef = 4C766A6A2DFB387700A88905 /* CloudKitSyncMonitor */; };
+		4C766AAC2DFC1C7100A88905 /* SwiftUI Apple Watch Decimal Pad in Frameworks */ = {isa = PBXBuildFile; productRef = 4C766AAB2DFC1C7100A88905 /* SwiftUI Apple Watch Decimal Pad */; };
+		4C766AAF2DFC471000A88905 /* SwiftUI Apple Watch Decimal Pad in Frameworks */ = {isa = PBXBuildFile; productRef = 4C766AAE2DFC471000A88905 /* SwiftUI Apple Watch Decimal Pad */; };
 		EA014F9527E5DB5200077FB2 /* WebViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014F9427E5DB5200077FB2 /* WebViewRepresentable.swift */; };
 		EA014F9A27E5E72000077FB2 /* WebViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014F9927E5E72000077FB2 /* WebViewScreen.swift */; };
 		EA014F9E27E5F5F200077FB2 /* RowLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014F9D27E5F5F200077FB2 /* RowLabelView.swift */; };
@@ -736,6 +738,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C766AAC2DFC1C7100A88905 /* SwiftUI Apple Watch Decimal Pad in Frameworks */,
+				4C766AAF2DFC471000A88905 /* SwiftUI Apple Watch Decimal Pad in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1695,6 +1699,8 @@
 			);
 			name = "PsychonautWiki Journal Watch Watch App";
 			packageProductDependencies = (
+				4C766AAB2DFC1C7100A88905 /* SwiftUI Apple Watch Decimal Pad */,
+				4C766AAE2DFC471000A88905 /* SwiftUI Apple Watch Decimal Pad */,
 			);
 			productName = "PsychonautWiki Journal Watch Watch App";
 			productReference = 4C3139002DF84A6300647533 /* PsychonautWiki Journal Watch Watch App.app */;
@@ -1803,6 +1809,7 @@
 				EAFA4BD22B400BE50056649E /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 				EAC3686A2B6F840100056C56 /* XCRemoteSwiftPackageReference "HorizonCalendar" */,
 				4C766A692DFB387700A88905 /* XCRemoteSwiftPackageReference "CloudKitSyncMonitor" */,
+				4C766AAD2DFC471000A88905 /* XCLocalSwiftPackageReference "SwiftUI-Apple-Watch-Decimal-Pad" */,
 			);
 			productRefGroup = EAE4710426CBA57F009FB0EC /* Products */;
 			projectDirPath = "";
@@ -2638,6 +2645,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		4C766AAD2DFC471000A88905 /* XCLocalSwiftPackageReference "SwiftUI-Apple-Watch-Decimal-Pad" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "SwiftUI-Apple-Watch-Decimal-Pad";
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		4C766A692DFB387700A88905 /* XCRemoteSwiftPackageReference "CloudKitSyncMonitor" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -2687,10 +2701,13 @@
 			package = 4C766A692DFB387700A88905 /* XCRemoteSwiftPackageReference "CloudKitSyncMonitor" */;
 			productName = CloudKitSyncMonitor;
 		};
-		4C766A6C2DFB388800A88905 /* CloudKitSyncMonitor */ = {
+		4C766AAB2DFC1C7100A88905 /* SwiftUI Apple Watch Decimal Pad */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 4C766A692DFB387700A88905 /* XCRemoteSwiftPackageReference "CloudKitSyncMonitor" */;
-			productName = CloudKitSyncMonitor;
+			productName = "SwiftUI Apple Watch Decimal Pad";
+		};
+		4C766AAE2DFC471000A88905 /* SwiftUI Apple Watch Decimal Pad */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = "SwiftUI Apple Watch Decimal Pad";
 		};
 		EAC3686B2B6F840100056C56 /* HorizonCalendar */ = {
 			isa = XCSwiftPackageProductDependency;
