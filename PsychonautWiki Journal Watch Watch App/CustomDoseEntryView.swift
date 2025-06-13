@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with PsychonautWiki Journal Watch Watch App. If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
 
-import SwiftUI
 import CoreData
+import SwiftUI
 import SwiftUI_Apple_Watch_Decimal_Pad
 
 struct CustomDoseEntryView: View {
-    let substanceName: String
+    let substance: Substance
     @State private var doseText: String
     @State private var selectedUnits: String
-    @State private var selectedRoute: AdministrationRoute = .oral
+    @State private var selectedRoute: AdministrationRoute
     @State private var ingestionTime: Date = Date()
     let onSave: () -> Void
 
@@ -31,14 +31,25 @@ struct CustomDoseEntryView: View {
     @State private var showingAlert = false
     @State private var alertMessage = ""
 
-    init(substanceName: String, initialDose: Double, initialUnits: String, onSave: @escaping () -> Void) {
-        self.substanceName = substanceName
+    init(
+        substance: Substance, initialDose: Double,
+        onSave: @escaping () -> Void
+    ) {
+        self.substance = substance
         if initialDose > 0 {
             _doseText = State(initialValue: String(initialDose))
         } else {
             _doseText = State(initialValue: "")
         }
+
+        let initialRoute = substance.roas.first?.name ?? .oral
+        _selectedRoute = State(initialValue: initialRoute)
+
+        let allUnits = substance.roas.compactMap { $0.dose?.units }
+        let initialUnits =
+            substance.getDose(for: initialRoute)?.units ?? Array(Set(allUnits)).first ?? ""
         _selectedUnits = State(initialValue: initialUnits)
+
         self.onSave = onSave
     }
 
@@ -47,61 +58,27 @@ struct CustomDoseEntryView: View {
     }
 
     private var availableUnits: [String] {
-        switch substanceName.lowercased() {
-        case "cannabis":
-            return ["g", "mg", "joint", "bowl"]
-        case "lsd":
-            return ["μg", "tab", "drop"]
-        case "psilocybin mushrooms":
-            return ["g", "mg", "cap"]
-        case "mdma":
-            return ["mg", "pill"]
-        case "dmt":
-            return ["mg", "ml"]
-        case "alcohol":
-            return ["ml", "drink", "shot"]
-        case "caffeine":
-            return ["mg", "cup"]
-        case "cocaine":
-            return ["mg", "line", "g"]
-        case "ketamine":
-            return ["mg", "bump", "line"]
-        default:
-            return ["mg", "g", "ml", "pill", "tab"]
-        }
+        let documentedUnits = substance.roas.compactMap { $0.dose?.units }
+        let otherUnits = UnitPickerOptions.allCases.map { $0.rawValue }.filter { $0 != "custom" }
+        let allUnits = documentedUnits + otherUnits
+        return allUnits.removingDuplicates()
     }
 
     private var commonRoutes: [AdministrationRoute] {
-        switch substanceName.lowercased() {
-        case "cannabis":
-            return [.smoked, .oral, .sublingual, .inhaled]
-        case "lsd":
-            return [.oral, .sublingual]
-        case "psilocybin mushrooms":
-            return [.oral]
-        case "mdma":
-            return [.oral, .insufflated]
-        case "dmt":
-            return [.smoked, .inhaled, .insufflated]
-        case "alcohol":
-            return [.oral]
-        case "cocaine":
-            return [.insufflated, .smoked, .oral]
-        case "ketamine":
-            return [.insufflated, .intramuscular, .oral]
-        default:
-            return [.oral, .insufflated, .smoked, .inhaled]
-        }
+        let documentedRoutes = substance.roas.map { $0.name }
+        let otherRoutes = AdministrationRoute.allCases.filter { !documentedRoutes.contains($0) }
+        return documentedRoutes + otherRoutes
     }
 
     var body: some View {
         Form {
             Section("Dose") {
-                DigiTextView(placeholder: "0.0",
-                     text: $doseText,
-                     presentingModal: false,
-                     alignment: .leading,
-                     style: .decimal
+                DigiTextView(
+                    placeholder: "0.0",
+                    text: $doseText,
+                    presentingModal: false,
+                    alignment: .leading,
+                    style: .decimal
                 )
 
                 Picker("Units", selection: $selectedUnits) {
@@ -127,6 +104,11 @@ struct CustomDoseEntryView: View {
                     .datePickerStyle(.wheel)
             }
         }
+        .onChange(of: selectedRoute) { _, newRoute in
+            if let newUnits = substance.getDose(for: newRoute)?.units {
+                selectedUnits = newUnits
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
@@ -137,7 +119,7 @@ struct CustomDoseEntryView: View {
             }
         }
         .alert("Error", isPresented: $showingAlert) {
-            Button("OK") { }
+            Button("OK") {}
         } message: {
             Text(alertMessage)
         }
@@ -157,13 +139,13 @@ struct CustomDoseEntryView: View {
             newIngestion.identifier = UUID()
             newIngestion.time = ingestionTime
             newIngestion.creationDate = Date()
-            newIngestion.substanceName = substanceName
+            newIngestion.substanceName = substance.name
             newIngestion.dose = dose
             newIngestion.units = selectedUnits
             newIngestion.administrationRoute = selectedRoute.rawValue
             newIngestion.experience = experience
 
-            let companion = getOrCreateCompanion(for: substanceName)
+            let companion = getOrCreateCompanion(for: substance.name)
             newIngestion.substanceCompanion = companion
             newIngestion.color = companion.colorAsText
 
@@ -181,7 +163,8 @@ struct CustomDoseEntryView: View {
         if let latestExperience = PersistenceController.shared.getLatestActiveExperience() {
             let twelveHours: TimeInterval = 12 * 60 * 60
             if let lastIngestionTime = latestExperience.ingestionsSorted.last?.time,
-               date.timeIntervalSince(lastIngestionTime) < twelveHours {
+                date.timeIntervalSince(lastIngestionTime) < twelveHours
+            {
                 latestExperience.sortDate = date
                 return latestExperience
             }
@@ -209,6 +192,18 @@ struct CustomDoseEntryView: View {
     }
 }
 
+extension Array where Element: Hashable {
+    func removingDuplicates() -> [Element] {
+        var addedDict = [Element: Bool]()
+
+        return filter {
+            addedDict.updateValue(true, forKey: $0) == nil
+        }
+    }
+}
+
 #Preview {
-    CustomDoseEntryView(substanceName: "MDMA", initialDose: 100, initialUnits: "mg", onSave: {})
+    CustomDoseEntryView(
+        substance: SubstanceRepo.shared.getSubstance(name: "MDMA")!, initialDose: 100,
+        onSave: {})
 }

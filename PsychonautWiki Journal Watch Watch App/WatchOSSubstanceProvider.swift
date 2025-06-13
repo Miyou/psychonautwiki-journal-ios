@@ -17,6 +17,10 @@ class WatchOSSubstanceProvider {
         return substanceRepo.substances
     }
 
+    func getSubstance(withName name: String) -> Substance? {
+        return substanceRepo.getSubstance(name: name)
+    }
+
     func getSuggestions(for substanceName: String) -> [any SuggestionProtocol] {
         let sortedIngestions = getSortedIngestions(for: substanceName)
         return PsychonautWiki_Journal_Watch_Watch_App.getSuggestions(

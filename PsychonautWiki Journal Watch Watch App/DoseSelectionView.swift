@@ -18,43 +18,15 @@ import CoreData
 import SwiftUI
 
 struct DoseSelectionView: View {
-    let substanceName: String
+    let substance: Substance
     @Environment(\.managedObjectContext) private var viewContext
     let onSave: () -> Void
 
     @State private var suggestions: [any SuggestionProtocol] = []
 
-    private let defaultUnits: String
-
-    init(substanceName: String, onSave: @escaping () -> Void) {
-        self.substanceName = substanceName
+    init(substance: Substance, onSave: @escaping () -> Void) {
+        self.substance = substance
         self.onSave = onSave
-        self.defaultUnits = DoseSelectionView.getDefaultUnits(for: substanceName)
-    }
-
-    private static func getDefaultUnits(for substanceName: String) -> String {
-        switch substanceName.lowercased() {
-        case "cannabis":
-            return "g"
-        case "lsd":
-            return "μg"
-        case "psilocybin mushrooms":
-            return "g"
-        case "mdma":
-            return "mg"
-        case "dmt":
-            return "mg"
-        case "cocaine":
-            return "mg"
-        case "alcohol":
-            return "ml"
-        case "caffeine":
-            return "mg"
-        case "ketamine":
-            return "mg"
-        default:
-            return "mg"
-        }
     }
 
     var body: some View {
@@ -69,9 +41,8 @@ struct DoseSelectionView: View {
                                         doseDescription + " " + pureSuggestion.route.displayName
                                     NavigationLink(linkTitle) {
                                         CustomDoseEntryView(
-                                            substanceName: substanceName,
+                                            substance: substance,
                                             initialDose: doseInfo.dose ?? 0.0,
-                                            initialUnits: doseInfo.units,
                                             onSave: onSave
                                         )
                                     }
@@ -85,22 +56,21 @@ struct DoseSelectionView: View {
             Section("Dose Options") {
                 NavigationLink("Enter Custom Dose") {
                     CustomDoseEntryView(
-                        substanceName: substanceName,
+                        substance: substance,
                         initialDose: 0,
-                        initialUnits: defaultUnits,
                         onSave: onSave
                     )
                 }
             }
         }
         .onAppear {
-            self.suggestions = WatchOSSubstanceProvider.shared.getSuggestions(for: substanceName)
+            self.suggestions = WatchOSSubstanceProvider.shared.getSuggestions(for: substance.name)
         }
-        .navigationTitle(substanceName)
+        .navigationTitle(substance.name)
         .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    DoseSelectionView(substanceName: "MDMA", onSave: {})
+    DoseSelectionView(substance: SubstanceRepo.shared.getSubstance(name: "MDMA")!, onSave: {})
 }

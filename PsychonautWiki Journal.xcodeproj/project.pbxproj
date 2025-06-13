@@ -38,6 +38,7 @@
 		4C766ACB2DFC5C3900A88905 /* Inflection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEA92222B4E780200F3049D /* Inflection.swift */; };
 		4C766ACC2DFC5C4400A88905 /* Sequence-Uniqued.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4715C26CBA664009FB0EC /* Sequence-Uniqued.swift */; };
 		4C766ACD2DFC5F7700A88905 /* substances.json in Resources */ = {isa = PBXBuildFile; fileRef = EAE4723426CC42F7009FB0EC /* substances.json */; };
+		4C766ACE2DFC83D900A88905 /* UnitPickerOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014FAF27EC6E0400077FB2 /* UnitPickerOptions.swift */; };
 		EA014F9527E5DB5200077FB2 /* WebViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014F9427E5DB5200077FB2 /* WebViewRepresentable.swift */; };
 		EA014F9A27E5E72000077FB2 /* WebViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014F9927E5E72000077FB2 /* WebViewScreen.swift */; };
 		EA014F9E27E5F5F200077FB2 /* RowLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014F9D27E5F5F200077FB2 /* RowLabelView.swift */; };
@@ -1908,6 +1909,7 @@
 				4C766AB92DFC526000A88905 /* SuggestionsCreator.swift in Sources */,
 				4C766AC92DFC5BFC00A88905 /* StomachFullness.swift in Sources */,
 				4C766AC42DFC598100A88905 /* SubstanceFile.swift in Sources */,
+				4C766ACE2DFC83D900A88905 /* UnitPickerOptions.swift in Sources */,
 				4C766ACA2DFC5C2400A88905 /* CustomUnitDose.swift in Sources */,
 				4C766AC22DFC537F00A88905 /* DoseRangeType.swift in Sources */,
 				4C3139142DF84E9200647533 /* Main.xcdatamodeld in Sources */,

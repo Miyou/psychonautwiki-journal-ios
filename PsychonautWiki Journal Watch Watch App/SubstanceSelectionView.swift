@@ -42,8 +42,7 @@ struct SubstanceSelectionView: View {
     private var recentSubstances: [String] {
         let recentSubstanceNames = Array(Set(recentIngestions.compactMap { $0.substanceName }))
             .prefix(5)
-        let fallbackSubstances = ["Cannabis", "LSD", "Psilocybin mushrooms", "MDMA", "DMT"]
-        return recentSubstanceNames.isEmpty ? fallbackSubstances : Array(recentSubstanceNames)
+        return Array(recentSubstanceNames)
     }
 
     private var allSubstances: [String] {
@@ -65,12 +64,16 @@ struct SubstanceSelectionView: View {
                 searchResultsSection
             }
             .navigationDestination(for: String.self) { substanceName in
-                DoseSelectionView(
-                    substanceName: substanceName,
-                    onSave: {
-                        path.removeLast()
-                        dismiss()
-                    })
+                if let substance = WatchOSSubstanceProvider.shared.getSubstance(
+                    withName: substanceName)
+                {
+                    DoseSelectionView(
+                        substance: substance,
+                        onSave: {
+                            path.removeLast()
+                            dismiss()
+                        })
+                }
             }
             .navigationTitle("Substance")
             .searchable(text: $searchText, prompt: "Search substances")
