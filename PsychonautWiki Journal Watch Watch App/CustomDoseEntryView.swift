@@ -94,14 +94,10 @@ struct CustomDoseEntryView: View {
                         Text(route.displayName).tag(route)
                     }
                 }
-                .pickerStyle(.wheel)
-                .labelsHidden()
-                .padding(.vertical, 8)
             }
 
             Section("Time") {
                 DatePicker("Time", selection: $ingestionTime, displayedComponents: [.hourAndMinute])
-                    .datePickerStyle(.wheel)
             }
         }
         .onChange(of: selectedRoute) { _, newRoute in
