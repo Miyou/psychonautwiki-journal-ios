@@ -14,22 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with PsychonautWiki Journal Watch Watch App. If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
 
-import SwiftUI
 import CoreData
-
-fileprivate struct DoseInfo: Hashable, Identifiable {
-    var id: String { "\(dose)\(units)" }
-    let dose: Double
-    let units: String
-}
+import SwiftUI
 
 struct DoseSelectionView: View {
     let substanceName: String
     @Environment(\.managedObjectContext) private var viewContext
     let onSave: () -> Void
 
-    @FetchRequest
-    private var recentIngestions: FetchedResults<Ingestion>
+    @State private var suggestions: [any SuggestionProtocol] = []
 
     private let defaultUnits: String
 
@@ -37,24 +30,6 @@ struct DoseSelectionView: View {
         self.substanceName = substanceName
         self.onSave = onSave
         self.defaultUnits = DoseSelectionView.getDefaultUnits(for: substanceName)
-
-        self._recentIngestions = FetchRequest(
-            sortDescriptors: [NSSortDescriptor(keyPath: \Ingestion.time, ascending: false)],
-            predicate: NSCompoundPredicate(andPredicateWithSubpredicates: [
-                NSPredicate(format: "substanceName == %@", substanceName),
-                NSPredicate(format: "time >= %@", (Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()) as NSDate)
-            ]),
-            animation: .default
-        )
-    }
-
-    private var recentDoses: [DoseInfo] {
-        let uniqueDoses = Array(Set(recentIngestions.compactMap { ingestion -> DoseInfo? in
-            guard let dose = ingestion.doseUnwrapped, dose > 0,
-                  let units = ingestion.units else { return nil }
-            return DoseInfo(dose: dose, units: units)
-        })).prefix(3)
-        return Array(uniqueDoses)
     }
 
     private static func getDefaultUnits(for substanceName: String) -> String {
@@ -84,16 +59,24 @@ struct DoseSelectionView: View {
 
     var body: some View {
         List {
-            if !recentDoses.isEmpty {
-                Section("Recent Doses") {
-                    ForEach(recentDoses) { doseInfo in
-                        NavigationLink(doseInfo.dose.asRoundedReadableString + " " + doseInfo.units) {
-                            CustomDoseEntryView(
-                                substanceName: substanceName,
-                                initialDose: doseInfo.dose,
-                                initialUnits: doseInfo.units,
-                                onSave: onSave
-                            )
+            if !suggestions.isEmpty {
+                Section("Suggestions") {
+                    ForEach(suggestions, id: \.id) { suggestion in
+                        if let pureSuggestion = suggestion as? PureSubstanceSuggestions {
+                            ForEach(pureSuggestion.dosesAndUnit, id: \.dose) { doseInfo in
+                                if let doseDescription = doseInfo.doseDescription {
+                                    let linkTitle =
+                                        doseDescription + " " + pureSuggestion.route.displayName
+                                    NavigationLink(linkTitle) {
+                                        CustomDoseEntryView(
+                                            substanceName: substanceName,
+                                            initialDose: doseInfo.dose ?? 0.0,
+                                            initialUnits: doseInfo.units,
+                                            onSave: onSave
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -109,6 +92,9 @@ struct DoseSelectionView: View {
                     )
                 }
             }
+        }
+        .onAppear {
+            self.suggestions = WatchOSSubstanceProvider.shared.getSuggestions(for: substanceName)
         }
         .navigationTitle(substanceName)
         .navigationBarTitleDisplayMode(.inline)

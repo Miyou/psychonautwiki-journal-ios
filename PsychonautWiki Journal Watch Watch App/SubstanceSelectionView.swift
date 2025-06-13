@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with PsychonautWiki Journal Watch Watch App. If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
 
-import SwiftUI
 import CoreData
+import SwiftUI
 
 struct SubstanceSelectionView: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -25,29 +25,29 @@ struct SubstanceSelectionView: View {
     @State private var path = NavigationPath()
 
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \SubstanceCompanion.substanceName, ascending: true)],
+        sortDescriptors: [
+            NSSortDescriptor(keyPath: \SubstanceCompanion.substanceName, ascending: true)
+        ],
         animation: .default)
     private var substanceCompanions: FetchedResults<SubstanceCompanion>
 
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Ingestion.time, ascending: false)],
-        predicate: NSPredicate(format: "time >= %@", (Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()) as NSDate),
+        predicate: NSPredicate(
+            format: "time >= %@",
+            (Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()) as NSDate),
         animation: .default)
     private var recentIngestions: FetchedResults<Ingestion>
 
     private var recentSubstances: [String] {
-        let recentSubstanceNames = Array(Set(recentIngestions.compactMap { $0.substanceName })).prefix(5)
+        let recentSubstanceNames = Array(Set(recentIngestions.compactMap { $0.substanceName }))
+            .prefix(5)
         let fallbackSubstances = ["Cannabis", "LSD", "Psilocybin mushrooms", "MDMA", "DMT"]
         return recentSubstanceNames.isEmpty ? fallbackSubstances : Array(recentSubstanceNames)
     }
 
     private var allSubstances: [String] {
-        let allKnownSubstances = [
-            "Cannabis", "LSD", "Psilocybin mushrooms", "MDMA", "DMT", "Cocaine", "Alcohol",
-            "Caffeine", "Nicotine", "Amphetamine", "Methamphetamine", "Ketamine", "GHB",
-            "2C-B", "Mescaline", "Ayahuasca", "5-MeO-DMT", "Salvia divinorum"
-        ]
-        return allKnownSubstances.sorted()
+        return WatchOSSubstanceProvider.shared.getAllSubstances().map { $0.name }
     }
 
     private var filteredSubstances: [String] {
@@ -65,10 +65,12 @@ struct SubstanceSelectionView: View {
                 searchResultsSection
             }
             .navigationDestination(for: String.self) { substanceName in
-                DoseSelectionView(substanceName: substanceName, onSave: {
-                    path.removeLast()
-                    dismiss()
-                })
+                DoseSelectionView(
+                    substanceName: substanceName,
+                    onSave: {
+                        path.removeLast()
+                        dismiss()
+                    })
             }
             .navigationTitle("Substance")
             .searchable(text: $searchText, prompt: "Search substances")
@@ -120,8 +122,9 @@ struct SubstanceSelectionView: View {
 
     private func getSubstanceColor(_ substanceName: String) -> Color {
         if let companion = substanceCompanions.first(where: { $0.substanceName == substanceName }),
-           let colorString = companion.colorAsText,
-           let substanceColor = SubstanceColor(rawValue: colorString) {
+            let colorString = companion.colorAsText,
+            let substanceColor = SubstanceColor(rawValue: colorString)
+        {
             return substanceColor.swiftUIColor
         }
         return .blue

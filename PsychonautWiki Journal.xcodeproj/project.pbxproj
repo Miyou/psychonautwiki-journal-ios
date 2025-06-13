@@ -14,6 +14,30 @@
 		4C766A6B2DFB387700A88905 /* CloudKitSyncMonitor in Frameworks */ = {isa = PBXBuildFile; productRef = 4C766A6A2DFB387700A88905 /* CloudKitSyncMonitor */; };
 		4C766AAC2DFC1C7100A88905 /* SwiftUI Apple Watch Decimal Pad in Frameworks */ = {isa = PBXBuildFile; productRef = 4C766AAB2DFC1C7100A88905 /* SwiftUI Apple Watch Decimal Pad */; };
 		4C766AAF2DFC471000A88905 /* SwiftUI Apple Watch Decimal Pad in Frameworks */ = {isa = PBXBuildFile; productRef = 4C766AAE2DFC471000A88905 /* SwiftUI Apple Watch Decimal Pad */; };
+		4C766AB62DFC522F00A88905 /* Suggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6048262A1411C0005C6A4B /* Suggestion.swift */; };
+		4C766AB72DFC524400A88905 /* SubstanceRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA47E63527CA136C00F6E10F /* SubstanceRepo.swift */; };
+		4C766AB82DFC525300A88905 /* Substance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA47E63D27CA136C00F6E10F /* Substance.swift */; };
+		4C766AB92DFC526000A88905 /* SuggestionsCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1DE5A32949DE8A00FEE975 /* SuggestionsCreator.swift */; };
+		4C766ABA2DFC527000A88905 /* Tolerance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA47E63727CA136C00F6E10F /* Tolerance.swift */; };
+		4C766ABB2DFC527600A88905 /* RoaDose.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA47E63B27CA136C00F6E10F /* RoaDose.swift */; };
+		4C766ABC2DFC527C00A88905 /* RoaDuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA47E63927CA136C00F6E10F /* RoaDuration.swift */; };
+		4C766ABD2DFC528300A88905 /* RoaRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA47E63F27CA136C00F6E10F /* RoaRange.swift */; };
+		4C766ABE2DFC528900A88905 /* RegularDoseAndUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6048282A1411CF005C6A4B /* RegularDoseAndUnit.swift */; };
+		4C766ABF2DFC52AE00A88905 /* DurationRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA47E64327CA136C00F6E10F /* DurationRange.swift */; };
+		4C766AC02DFC52E000A88905 /* Roa.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA47E64127CA136C00F6E10F /* Roa.swift */; };
+		4C766AC12DFC52ED00A88905 /* Interactions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACB0C1F293FED5500C605E2 /* Interactions.swift */; };
+		4C766AC22DFC537F00A88905 /* DoseRangeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8AEA8027E2154D00B30A16 /* DoseRangeType.swift */; };
+		4C766AC32DFC591C00A88905 /* CustomUnit-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2C9BB2B28BFBA0045C8DF /* CustomUnit-CoreDataHelpers.swift */; };
+		4C766AC42DFC598100A88905 /* SubstanceFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACB0C18293F9BCE00C605E2 /* SubstanceFile.swift */; };
+		4C766AC52DFC59A700A88905 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACB0C1A293F9C0100C605E2 /* Category.swift */; };
+		4C766AC62DFC59B700A88905 /* CustomUnitMinInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA47935F2B4A72D700685EAA /* CustomUnitMinInfo.swift */; };
+		4C766AC72DFC5BD300A88905 /* SubstanceCompanion-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABDA72A2887ECFB00A23DB3 /* SubstanceCompanion-CoreDataHelpers.swift */; };
+		4C766AC82DFC5BF400A88905 /* Ingestion-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4716726CBA664009FB0EC /* Ingestion-CoreDataHelpers.swift */; };
+		4C766AC92DFC5BFC00A88905 /* StomachFullness.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA48F89B29E7D86A007DA8C5 /* StomachFullness.swift */; };
+		4C766ACA2DFC5C2400A88905 /* CustomUnitDose.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4793592B48252500685EAA /* CustomUnitDose.swift */; };
+		4C766ACB2DFC5C3900A88905 /* Inflection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEA92222B4E780200F3049D /* Inflection.swift */; };
+		4C766ACC2DFC5C4400A88905 /* Sequence-Uniqued.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4715C26CBA664009FB0EC /* Sequence-Uniqued.swift */; };
+		4C766ACD2DFC5F7700A88905 /* substances.json in Resources */ = {isa = PBXBuildFile; fileRef = EAE4723426CC42F7009FB0EC /* substances.json */; };
 		EA014F9527E5DB5200077FB2 /* WebViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014F9427E5DB5200077FB2 /* WebViewRepresentable.swift */; };
 		EA014F9A27E5E72000077FB2 /* WebViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014F9927E5E72000077FB2 /* WebViewScreen.swift */; };
 		EA014F9E27E5F5F200077FB2 /* RowLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014F9D27E5F5F200077FB2 /* RowLabelView.swift */; };
@@ -1828,6 +1852,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C766ACD2DFC5F7700A88905 /* substances.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1867,9 +1892,32 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C766AC32DFC591C00A88905 /* CustomUnit-CoreDataHelpers.swift in Sources */,
+				4C766AC62DFC59B700A88905 /* CustomUnitMinInfo.swift in Sources */,
+				4C766ABC2DFC527C00A88905 /* RoaDuration.swift in Sources */,
+				4C766AB82DFC525300A88905 /* Substance.swift in Sources */,
+				4C766AB72DFC524400A88905 /* SubstanceRepo.swift in Sources */,
+				4C766ABF2DFC52AE00A88905 /* DurationRange.swift in Sources */,
+				4C766ABD2DFC528300A88905 /* RoaRange.swift in Sources */,
+				4C766AC02DFC52E000A88905 /* Roa.swift in Sources */,
+				4C766ACC2DFC5C4400A88905 /* Sequence-Uniqued.swift in Sources */,
+				4C766AC12DFC52ED00A88905 /* Interactions.swift in Sources */,
+				4C766ABA2DFC527000A88905 /* Tolerance.swift in Sources */,
+				4C766ACB2DFC5C3900A88905 /* Inflection.swift in Sources */,
+				4C766AC82DFC5BF400A88905 /* Ingestion-CoreDataHelpers.swift in Sources */,
+				4C766AB92DFC526000A88905 /* SuggestionsCreator.swift in Sources */,
+				4C766AC92DFC5BFC00A88905 /* StomachFullness.swift in Sources */,
+				4C766AC42DFC598100A88905 /* SubstanceFile.swift in Sources */,
+				4C766ACA2DFC5C2400A88905 /* CustomUnitDose.swift in Sources */,
+				4C766AC22DFC537F00A88905 /* DoseRangeType.swift in Sources */,
 				4C3139142DF84E9200647533 /* Main.xcdatamodeld in Sources */,
+				4C766ABE2DFC528900A88905 /* RegularDoseAndUnit.swift in Sources */,
+				4C766ABB2DFC527600A88905 /* RoaDose.swift in Sources */,
+				4C766AC52DFC59A700A88905 /* Category.swift in Sources */,
 				4C3139112DF84E3600647533 /* Persistence.swift in Sources */,
 				4C3139122DF84E5000647533 /* AdministrationRoute.swift in Sources */,
+				4C766AC72DFC5BD300A88905 /* SubstanceCompanion-CoreDataHelpers.swift in Sources */,
+				4C766AB62DFC522F00A88905 /* Suggestion.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

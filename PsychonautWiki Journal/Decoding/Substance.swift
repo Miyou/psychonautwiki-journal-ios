@@ -166,7 +166,7 @@ struct DurationInfo {
     let roaDuration: RoaDuration
 }
 
-struct DoseInfo {
+struct DoseInfo: Hashable {
     let route: AdministrationRoute
     let roaDose: RoaDose
     let bioavailability: RoaRange?

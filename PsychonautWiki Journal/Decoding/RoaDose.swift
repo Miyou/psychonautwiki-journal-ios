@@ -17,7 +17,7 @@
 import CoreData
 import Foundation
 
-struct RoaDose: Decodable {
+struct RoaDose: Decodable, Hashable {
     let units: String
     let lightMin: Double?
     let commonMin: Double?

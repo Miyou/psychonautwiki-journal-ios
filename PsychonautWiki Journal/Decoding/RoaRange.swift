@@ -17,7 +17,7 @@
 import CoreData
 import Foundation
 
-struct RoaRange: Decodable {
+struct RoaRange: Decodable, Hashable {
     let min: Double?
     let max: Double?
 

@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with PsychonautWiki Journal Watch Watch App. If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
 
-import Foundation
 import CoreData
+import Foundation
 
 // MARK: - Double Extension
 extension Double {
@@ -37,48 +37,29 @@ extension Date {
     }
 }
 
-// MARK: - Ingestion Extension
-extension Ingestion: Comparable {
-    public static func < (lhs: Ingestion, rhs: Ingestion) -> Bool {
-        lhs.timeUnwrapped < rhs.timeUnwrapped
-    }
-    
-    var doseUnwrapped: Double? {
-        if dose == 0 {
-            return nil
-        } else {
-            return dose
-        }
-    }
-    
-    var timeUnwrapped: Date {
-        time ?? Date()
-    }
-    
-    var substanceNameUnwrapped: String {
-        substanceName ?? "Unknown"
-    }
-}
-
 // MARK: - Experience Extension
 extension Experience {
     var ingestionsSorted: [Ingestion] {
         (ingestions?.allObjects as? [Ingestion] ?? []).sorted()
     }
-    
+
     var isCurrent: Bool {
         let twelveHours: TimeInterval = 12 * 60 * 60
         if let lastIngestionTime = ingestionsSorted.last?.time,
-           Date().timeIntervalSinceReferenceDate - lastIngestionTime.timeIntervalSinceReferenceDate < twelveHours {
+            Date().timeIntervalSinceReferenceDate - lastIngestionTime.timeIntervalSinceReferenceDate
+                < twelveHours
+        {
             return true
         } else if let sortDate = sortDate,
-                  Date().timeIntervalSinceReferenceDate - sortDate.timeIntervalSinceReferenceDate < twelveHours {
+            Date().timeIntervalSinceReferenceDate - sortDate.timeIntervalSinceReferenceDate
+                < twelveHours
+        {
             return true
         } else {
             return false
         }
     }
-    
+
     var creationDateUnwrapped: Date {
         creationDate ?? Date()
     }
