@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with PsychonautWiki Journal Watch Watch App. If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
 
-import SwiftUI
 import CoreData
+import SwiftUI
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -23,7 +23,8 @@ struct ContentView: View {
     // Fetch today's ingestions only
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Ingestion.time, ascending: false)],
-        predicate: NSPredicate(format: "time >= %@", Calendar.current.startOfDay(for: Date()) as NSDate),
+        predicate: NSPredicate(
+            format: "time >= %@", Calendar.current.startOfDay(for: Date()) as NSDate),
         animation: .default)
     private var todaysIngestions: FetchedResults<Ingestion>
 
@@ -74,24 +75,25 @@ struct ContentView: View {
 
 struct IngestionRowView: View {
     let ingestion: Ingestion
-    
+
     private var substanceColor: Color {
         if let colorString = ingestion.color,
-           let substanceColor = SubstanceColor(rawValue: colorString) {
+            let substanceColor = SubstanceColor(rawValue: colorString)
+        {
             return substanceColor.swiftUIColor
         }
         return .blue
     }
-    
+
     private var timeAgo: String {
         guard let time = ingestion.time else { return "" }
         let now = Date()
         let timeInterval = now.timeIntervalSince(time)
-        
-        if timeInterval < 3600 { // Less than 1 hour
+
+        if timeInterval < 3600 {  // Less than 1 hour
             let minutes = Int(timeInterval / 60)
             return "\(minutes)m ago"
-        } else if timeInterval < 86400 { // Less than 24 hours
+        } else if timeInterval < 86400 {  // Less than 24 hours
             let hours = Int(timeInterval / 3600)
             return "\(hours)h ago"
         } else {
@@ -100,7 +102,7 @@ struct IngestionRowView: View {
             return formatter.string(from: time)
         }
     }
-    
+
     var body: some View {
         HStack(spacing: 12) {
             // Color indicator
@@ -108,19 +110,23 @@ struct IngestionRowView: View {
                 .fill(substanceColor)
                 .frame(width: 4)
                 .clipShape(RoundedRectangle(cornerRadius: 2))
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(ingestion.substanceName ?? "Unknown")
                     .font(.headline)
                     .lineLimit(1)
-                
+
                 HStack(spacing: 8) {
-                    if let dose = ingestion.doseUnwrapped {
+                    if let customUnitDose = ingestion.customUnitDose {
+                        Text(customUnitDose.doseDescription)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    } else if let dose = ingestion.doseUnwrapped {
                         Text("\(dose.asRoundedReadableString) \(ingestion.units ?? "")")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
-                    
+
                     if let route = ingestion.administrationRoute {
                         Text("•")
                             .font(.caption)
@@ -130,12 +136,12 @@ struct IngestionRowView: View {
                             .foregroundColor(.secondary)
                     }
                 }
-                
+
                 Text(timeAgo)
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
-            
+
             Spacer()
         }
         .padding(.vertical, 2)

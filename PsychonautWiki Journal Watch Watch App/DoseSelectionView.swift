@@ -18,13 +18,13 @@ import CoreData
 import SwiftUI
 
 struct DoseSelectionView: View {
-    let substance: Substance
+    let substance: SubstanceOrCustomSubstance
     @Environment(\.managedObjectContext) private var viewContext
     let onSave: () -> Void
 
     @State private var suggestions: [any SuggestionProtocol] = []
 
-    init(substance: Substance, onSave: @escaping () -> Void) {
+    init(substance: SubstanceOrCustomSubstance, onSave: @escaping () -> Void) {
         self.substance = substance
         self.onSave = onSave
     }
@@ -44,6 +44,7 @@ struct DoseSelectionView: View {
                                             substance: substance,
                                             initialDose: doseInfo.dose ?? 0.0,
                                             initialRoute: pureSuggestion.route,
+                                            initialUnit: doseInfo.units,
                                             onSave: onSave
                                         )
                                     }
@@ -64,7 +65,7 @@ struct DoseSelectionView: View {
                                         substance: substance,
                                         initialDose: doseInfo.dose ?? 0.0,
                                         initialRoute: customUnit.administrationRouteUnwrapped,
-                                        customUnit: customUnit,
+                                        initialUnit: customUnit.name ?? "Unknown Custom",
                                         onSave: onSave
                                     )
                                 }
@@ -93,5 +94,5 @@ struct DoseSelectionView: View {
 }
 
 #Preview {
-    DoseSelectionView(substance: SubstanceRepo.shared.getSubstance(name: "MDMA")!, onSave: {})
+    DoseSelectionView(substance: .substance(SubstanceRepo.shared.getSubstance(name: "MDMA")!), onSave: {})
 }

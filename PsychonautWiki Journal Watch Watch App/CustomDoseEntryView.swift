@@ -18,13 +18,26 @@ import CoreData
 import SwiftUI
 import SwiftUI_Apple_Watch_Decimal_Pad
 
+enum SubstanceOrCustomSubstance {
+    case substance(Substance)
+    case customSubstance(CustomSubstance)
+
+    var name: String {
+        switch self {
+        case .substance(let substance):
+            return substance.name
+        case .customSubstance(let customSubstance):
+            return customSubstance.name ?? "Unknown"
+        }
+    }
+}
+
 struct CustomDoseEntryView: View {
-    let substance: Substance
+    let substance: SubstanceOrCustomSubstance
     @State private var doseText: String
     @State private var selectedUnits: String
     @State private var selectedRoute: AdministrationRoute
     @State private var ingestionTime: Date = Date()
-    @State private var customUnit: CustomUnit?
     let onSave: () -> Void
 
     @Environment(\.managedObjectContext) private var viewContext
@@ -32,32 +45,68 @@ struct CustomDoseEntryView: View {
     @State private var showingAlert = false
     @State private var alertMessage = ""
 
+    @FetchRequest private var customUnits: FetchedResults<CustomUnit>
+
     init(
-        substance: Substance, initialDose: Double, initialRoute: AdministrationRoute? = nil,
-        customUnit: CustomUnit? = nil,
+        substance: SubstanceOrCustomSubstance, initialDose: Double,
+        initialRoute: AdministrationRoute? = nil,
+        initialUnit: String? = nil,
         onSave: @escaping () -> Void
     ) {
         self.substance = substance
+
+        _customUnits = FetchRequest(
+            sortDescriptors: [NSSortDescriptor(keyPath: \CustomUnit.name, ascending: true)],
+            predicate: NSPredicate(format: "substanceName == %@", substance.name),
+            animation: .default
+        )
+
         if initialDose > 0 {
             _doseText = State(initialValue: String(initialDose))
         } else {
             _doseText = State(initialValue: "")
         }
 
-        let initialRoute = initialRoute ?? substance.roas.first?.name ?? .oral
-        _selectedRoute = State(initialValue: initialRoute)
+        let resolvedRoute: AdministrationRoute
+        if let initialRoute {
+            resolvedRoute = initialRoute
+        } else if case let .substance(s) = substance {
+            resolvedRoute = s.roas.first?.name ?? .oral
+        } else {
+            resolvedRoute = .oral
+        }
+        _selectedRoute = State(initialValue: resolvedRoute)
 
-        let allUnits = substance.roas.compactMap { $0.dose?.units }
-        let initialUnits =
-            substance.getDose(for: initialRoute)?.units ?? Array(Set(allUnits)).first ?? ""
+        let allUnits: [String] = {
+            if case let .substance(s) = substance {
+                return s.roas.compactMap { $0.dose?.units }
+            }
+            if case let .customSubstance(c) = substance {
+                return c.units != nil ? [c.units!] : []
+            }
+            return []
+        }()
+        let initialUnits: String
+        if let initialUnit {
+            initialUnits = initialUnit
+        } else {
+            if case let .substance(s) = substance {
+                initialUnits =
+                    s.getDose(for: resolvedRoute)?.units ?? Array(Set(allUnits)).first ?? ""
+            } else {
+                initialUnits = Array(Set(allUnits)).first ?? ""
+            }
+        }
         _selectedUnits = State(initialValue: initialUnits)
 
-        if let customUnit = customUnit {
-            _selectedUnits = State(initialValue: customUnit.nameUnwrapped)
-            _customUnit = State(initialValue: customUnit)
-        }
-
         self.onSave = onSave
+    }
+
+    private func getDose(for route: AdministrationRoute) -> RoaDose? {
+        if case let .substance(s) = substance {
+            return s.getDose(for: route)
+        }
+        return nil
     }
 
     private var dose: Double {
@@ -65,15 +114,26 @@ struct CustomDoseEntryView: View {
     }
 
     private var availableUnits: [String] {
-        let documentedUnits = substance.roas.compactMap { $0.dose?.units }
+        let documentedUnits: [String] = {
+            if case let .substance(s) = substance {
+                return s.roas.compactMap { $0.dose?.units }
+            }
+            return []
+        }()
         let otherUnits = UnitPickerOptions.allCases.map { $0.rawValue }.filter { $0 != "custom" }
         let allUnits =
-            documentedUnits + otherUnits + (customUnit != nil ? [customUnit!.nameUnwrapped] : [])
+            documentedUnits + otherUnits
+            + customUnits.map { $0.nameUnwrapped }
         return allUnits.removingDuplicates()
     }
 
     private var commonRoutes: [AdministrationRoute] {
-        let documentedRoutes = substance.roas.map { $0.name }
+        let documentedRoutes: [AdministrationRoute] = {
+            if case let .substance(s) = substance {
+                return s.roas.map { $0.name }
+            }
+            return []
+        }()
         let otherRoutes = AdministrationRoute.allCases.filter { !documentedRoutes.contains($0) }
         return documentedRoutes + otherRoutes
     }
@@ -109,7 +169,7 @@ struct CustomDoseEntryView: View {
             }
         }
         .onChange(of: selectedRoute) { _, newRoute in
-            if let newUnits = substance.getDose(for: newRoute)?.units {
+            if let newUnits = getDose(for: newRoute)?.units {
                 selectedUnits = newUnits
             }
         }
@@ -139,13 +199,16 @@ struct CustomDoseEntryView: View {
         withAnimation {
             let experience = getExperienceFor(date: ingestionTime)
 
+            let customUnit = customUnits.first(where: { $0.nameUnwrapped == selectedUnits })
+
             let newIngestion = Ingestion(context: viewContext)
             newIngestion.identifier = UUID()
             newIngestion.time = ingestionTime
             newIngestion.creationDate = Date()
             newIngestion.substanceName = substance.name
             newIngestion.dose = dose
-            newIngestion.units = selectedUnits
+            newIngestion.units =
+                customUnit != nil ? customUnit!.originalUnitUnwrapped : selectedUnits
             newIngestion.administrationRoute = selectedRoute.rawValue
             newIngestion.experience = experience
             newIngestion.customUnit = customUnit
@@ -209,6 +272,6 @@ extension Array where Element: Hashable {
 
 #Preview {
     CustomDoseEntryView(
-        substance: SubstanceRepo.shared.getSubstance(name: "MDMA")!, initialDose: 100,
+        substance: .substance(SubstanceRepo.shared.getSubstance(name: "MDMA")!), initialDose: 100,
         onSave: {})
 }

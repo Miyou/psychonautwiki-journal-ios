@@ -39,6 +39,11 @@ struct SubstanceSelectionView: View {
         animation: .default)
     private var recentIngestions: FetchedResults<Ingestion>
 
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \CustomSubstance.name, ascending: true)],
+        animation: .default)
+    private var customSubstances: FetchedResults<CustomSubstance>
+
     private var recentSubstances: [String] {
         var uniqueSubstanceNames: [String] = []
         var seenSubstanceNames = Set<String>()
@@ -54,7 +59,9 @@ struct SubstanceSelectionView: View {
     }
 
     private var allSubstances: [String] {
-        return WatchOSSubstanceProvider.shared.getAllSubstances().map { $0.name }
+        return
+            (WatchOSSubstanceProvider.shared.getAllSubstances().map { $0.name }
+            + customSubstances.map { $0.name ?? "Unknown" }).sorted()
     }
 
     private var filteredSubstances: [String] {
@@ -76,7 +83,16 @@ struct SubstanceSelectionView: View {
                     withName: substanceName)
                 {
                     DoseSelectionView(
-                        substance: substance,
+                        substance: .substance(substance),
+                        onSave: {
+                            path.removeLast()
+                            dismiss()
+                        })
+                } else if let customSubstance = customSubstances.first(where: {
+                    $0.name == substanceName
+                }) {
+                    DoseSelectionView(
+                        substance: .customSubstance(customSubstance),
                         onSave: {
                             path.removeLast()
                             dismiss()
