@@ -43,9 +43,30 @@ struct DoseSelectionView: View {
                                         CustomDoseEntryView(
                                             substance: substance,
                                             initialDose: doseInfo.dose ?? 0.0,
+                                            initialRoute: pureSuggestion.route,
                                             onSave: onSave
                                         )
                                     }
+                                }
+                            }
+                        } else if let customUnitSuggestion = suggestion as? CustomUnitSuggestions {
+                            ForEach(customUnitSuggestion.doses, id: \.dose) { doseInfo in
+                                let customUnit = customUnitSuggestion.customUnit
+                                let doseDescription = doseInfo.doseDescription(
+                                    customUnit: customUnit)
+                                let routeText = customUnit.administrationRouteUnwrapped.rawValue
+                                    .localizedCapitalized
+                                let linkTitle =
+                                    doseDescription + " " + routeText + ", "
+                                    + customUnit.nameUnwrapped
+                                NavigationLink(linkTitle) {
+                                    CustomDoseEntryView(
+                                        substance: substance,
+                                        initialDose: doseInfo.dose ?? 0.0,
+                                        initialRoute: customUnit.administrationRouteUnwrapped,
+                                        customUnit: customUnit,
+                                        onSave: onSave
+                                    )
                                 }
                             }
                         }

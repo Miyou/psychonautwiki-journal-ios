@@ -103,4 +103,22 @@ struct CustomUnitDoseSuggestion: Identifiable, Equatable {
     static func ==(lhs: Self, rhs: Self) -> Bool {
         lhs.dose == rhs.dose && lhs.isEstimate == rhs.isEstimate && lhs.estimatedStandardDeviation == rhs.estimatedStandardDeviation
     }
+
+    func doseDescription(customUnit: CustomUnit) -> String {
+        if let dose = dose {
+            let description = dose.with(pluralizableUnit: customUnit.pluralizableUnit)
+            if isEstimate {
+                if let estimatedStandardDeviation = estimatedStandardDeviation {
+                    return
+                        "\(dose.asRoundedReadableString)±\(estimatedStandardDeviation.asRoundedReadableString) \(dose.justUnit(pluralizableUnit: customUnit.pluralizableUnit))"
+                } else {
+                    return "~\(description)"
+                }
+            } else {
+                return description
+            }
+        } else {
+            return "Unknown"
+        }
+    }
 }

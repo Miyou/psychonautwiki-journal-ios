@@ -24,6 +24,7 @@ struct CustomDoseEntryView: View {
     @State private var selectedUnits: String
     @State private var selectedRoute: AdministrationRoute
     @State private var ingestionTime: Date = Date()
+    @State private var customUnit: CustomUnit?
     let onSave: () -> Void
 
     @Environment(\.managedObjectContext) private var viewContext
@@ -32,7 +33,8 @@ struct CustomDoseEntryView: View {
     @State private var alertMessage = ""
 
     init(
-        substance: Substance, initialDose: Double,
+        substance: Substance, initialDose: Double, initialRoute: AdministrationRoute? = nil,
+        customUnit: CustomUnit? = nil,
         onSave: @escaping () -> Void
     ) {
         self.substance = substance
@@ -42,13 +44,18 @@ struct CustomDoseEntryView: View {
             _doseText = State(initialValue: "")
         }
 
-        let initialRoute = substance.roas.first?.name ?? .oral
+        let initialRoute = initialRoute ?? substance.roas.first?.name ?? .oral
         _selectedRoute = State(initialValue: initialRoute)
 
         let allUnits = substance.roas.compactMap { $0.dose?.units }
         let initialUnits =
             substance.getDose(for: initialRoute)?.units ?? Array(Set(allUnits)).first ?? ""
         _selectedUnits = State(initialValue: initialUnits)
+
+        if let customUnit = customUnit {
+            _selectedUnits = State(initialValue: customUnit.nameUnwrapped)
+            _customUnit = State(initialValue: customUnit)
+        }
 
         self.onSave = onSave
     }
@@ -60,7 +67,8 @@ struct CustomDoseEntryView: View {
     private var availableUnits: [String] {
         let documentedUnits = substance.roas.compactMap { $0.dose?.units }
         let otherUnits = UnitPickerOptions.allCases.map { $0.rawValue }.filter { $0 != "custom" }
-        let allUnits = documentedUnits + otherUnits
+        let allUnits =
+            documentedUnits + otherUnits + (customUnit != nil ? [customUnit!.nameUnwrapped] : [])
         return allUnits.removingDuplicates()
     }
 
@@ -140,6 +148,7 @@ struct CustomDoseEntryView: View {
             newIngestion.units = selectedUnits
             newIngestion.administrationRoute = selectedRoute.rawValue
             newIngestion.experience = experience
+            newIngestion.customUnit = customUnit
 
             let companion = getOrCreateCompanion(for: substance.name)
             newIngestion.substanceCompanion = companion
