@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C31390D2DF84A6400647533 /* PsychonautWiki Journal Watch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 4C3139002DF84A6300647533 /* PsychonautWiki Journal Watch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4C31390D2DF84A6400647533 /* PsychonautWiki Journal Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 4C3139002DF84A6300647533 /* PsychonautWiki Journal Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4C3139112DF84E3600647533 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4718026CBA664009FB0EC /* Persistence.swift */; };
 		4C3139122DF84E5000647533 /* AdministrationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF76CAB27D90F6A00945587 /* AdministrationRoute.swift */; };
 		4C3139142DF84E9200647533 /* Main.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EAE4715626CBA664009FB0EC /* Main.xcdatamodeld */; };
@@ -39,6 +39,7 @@
 		4C766ACC2DFC5C4400A88905 /* Sequence-Uniqued.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4715C26CBA664009FB0EC /* Sequence-Uniqued.swift */; };
 		4C766ACD2DFC5F7700A88905 /* substances.json in Resources */ = {isa = PBXBuildFile; fileRef = EAE4723426CC42F7009FB0EC /* substances.json */; };
 		4C766ACE2DFC83D900A88905 /* UnitPickerOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014FAF27EC6E0400077FB2 /* UnitPickerOptions.swift */; };
+		4C766AD12DFDFCEC00A88905 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EAE4712726CBA663009FB0EC /* Assets.xcassets */; };
 		EA014F9527E5DB5200077FB2 /* WebViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014F9427E5DB5200077FB2 /* WebViewRepresentable.swift */; };
 		EA014F9A27E5E72000077FB2 /* WebViewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014F9927E5E72000077FB2 /* WebViewScreen.swift */; };
 		EA014F9E27E5F5F200077FB2 /* RowLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA014F9D27E5F5F200077FB2 /* RowLabelView.swift */; };
@@ -395,7 +396,7 @@
 			containerPortal = EAE470FB26CBA57F009FB0EC /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 4C3138FF2DF84A6300647533;
-			remoteInfo = "PsychonautWiki Journal Watch Watch App";
+			remoteInfo = "PsychonautWiki Journal Watch App";
 		};
 		EA085DDB29607229001638AC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -431,7 +432,7 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				4C31390D2DF84A6400647533 /* PsychonautWiki Journal Watch Watch App.app in Embed Watch Content */,
+				4C31390D2DF84A6400647533 /* PsychonautWiki Journal Watch App.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -439,7 +440,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4C3139002DF84A6300647533 /* PsychonautWiki Journal Watch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PsychonautWiki Journal Watch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C3139002DF84A6300647533 /* PsychonautWiki Journal Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PsychonautWiki Journal Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C3139372DF95DF900647533 /* PsychonautWiki JournalRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "PsychonautWiki JournalRelease.entitlements"; sourceTree = "<group>"; };
 		EA014F9427E5DB5200077FB2 /* WebViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewRepresentable.swift; sourceTree = "<group>"; };
 		EA014F9927E5E72000077FB2 /* WebViewScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewScreen.swift; sourceTree = "<group>"; };
@@ -755,7 +756,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		4C3139012DF84A6300647533 /* PsychonautWiki Journal Watch Watch App */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "PsychonautWiki Journal Watch Watch App"; sourceTree = "<group>"; };
+		4C3139012DF84A6300647533 /* PsychonautWiki Journal Watch App */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "PsychonautWiki Journal Watch App"; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1499,7 +1500,7 @@
 				EAE4710526CBA57F009FB0EC /* PsychonautWiki Journal */,
 				EACB6E3B27D09C8800940291 /* JournalTests */,
 				EA085DD129607229001638AC /* TimelineWidget */,
-				4C3139012DF84A6300647533 /* PsychonautWiki Journal Watch Watch App */,
+				4C3139012DF84A6300647533 /* PsychonautWiki Journal Watch App */,
 				EAE4710426CBA57F009FB0EC /* Products */,
 				EAA2EC6826E2064D00B4FACF /* Frameworks */,
 			);
@@ -1511,7 +1512,7 @@
 				EAE4710326CBA57F009FB0EC /* Journal.app */,
 				EACB6E3A27D09C8800940291 /* JournalTests.xctest */,
 				EA085DCC29607229001638AC /* TimelineWidgetExtension.appex */,
-				4C3139002DF84A6300647533 /* PsychonautWiki Journal Watch Watch App.app */,
+				4C3139002DF84A6300647533 /* PsychonautWiki Journal Watch App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1707,9 +1708,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4C3138FF2DF84A6300647533 /* PsychonautWiki Journal Watch Watch App */ = {
+		4C3138FF2DF84A6300647533 /* PsychonautWiki Journal Watch App */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4C3139102DF84A6400647533 /* Build configuration list for PBXNativeTarget "PsychonautWiki Journal Watch Watch App" */;
+			buildConfigurationList = 4C3139102DF84A6400647533 /* Build configuration list for PBXNativeTarget "PsychonautWiki Journal Watch App" */;
 			buildPhases = (
 				4C3138FC2DF84A6300647533 /* Sources */,
 				4C3138FD2DF84A6300647533 /* Frameworks */,
@@ -1720,15 +1721,15 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				4C3139012DF84A6300647533 /* PsychonautWiki Journal Watch Watch App */,
+				4C3139012DF84A6300647533 /* PsychonautWiki Journal Watch App */,
 			);
-			name = "PsychonautWiki Journal Watch Watch App";
+			name = "PsychonautWiki Journal Watch App";
 			packageProductDependencies = (
 				4C766AAB2DFC1C7100A88905 /* SwiftUI Apple Watch Decimal Pad */,
 				4C766AAE2DFC471000A88905 /* SwiftUI Apple Watch Decimal Pad */,
 			);
-			productName = "PsychonautWiki Journal Watch Watch App";
-			productReference = 4C3139002DF84A6300647533 /* PsychonautWiki Journal Watch Watch App.app */;
+			productName = "PsychonautWiki Journal Watch App";
+			productReference = 4C3139002DF84A6300647533 /* PsychonautWiki Journal Watch App.app */;
 			productType = "com.apple.product-type.application";
 		};
 		EA085DCB29607229001638AC /* TimelineWidgetExtension */ = {
@@ -1843,7 +1844,7 @@
 				EAE4710226CBA57F009FB0EC /* PsychonautWiki Journal */,
 				EACB6E3927D09C8800940291 /* JournalTests */,
 				EA085DCB29607229001638AC /* TimelineWidgetExtension */,
-				4C3138FF2DF84A6300647533 /* PsychonautWiki Journal Watch Watch App */,
+				4C3138FF2DF84A6300647533 /* PsychonautWiki Journal Watch App */,
 			);
 		};
 /* End PBXProject section */
@@ -1854,6 +1855,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C766ACD2DFC5F7700A88905 /* substances.json in Resources */,
+				4C766AD12DFDFCEC00A88905 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2282,7 +2284,7 @@
 /* Begin PBXTargetDependency section */
 		4C31390C2DF84A6400647533 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4C3138FF2DF84A6300647533 /* PsychonautWiki Journal Watch Watch App */;
+			target = 4C3138FF2DF84A6300647533 /* PsychonautWiki Journal Watch App */;
 			targetProxy = 4C31390B2DF84A6400647533 /* PBXContainerItemProxy */;
 		};
 		EA085DDC29607229001638AC /* PBXTargetDependency */ = {
@@ -2304,10 +2306,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = "PsychonautWiki Journal Watch Watch App/PsychonautWiki Journal Watch Watch App.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "PsychonautWiki Journal Watch App/PsychonautWiki Journal Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"PsychonautWiki Journal Watch Watch App/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"PsychonautWiki Journal Watch App/Preview Content\"";
 				DEVELOPMENT_TEAM = Y8B352K3PT;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -2340,10 +2342,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = "PsychonautWiki Journal Watch Watch App/PsychonautWiki Journal Watch Watch AppRelease.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "PsychonautWiki Journal Watch App/PsychonautWiki Journal Watch AppRelease.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"PsychonautWiki Journal Watch Watch App/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"PsychonautWiki Journal Watch App/Preview Content\"";
 				DEVELOPMENT_TEAM = Y8B352K3PT;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -2648,7 +2650,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4C3139102DF84A6400647533 /* Build configuration list for PBXNativeTarget "PsychonautWiki Journal Watch Watch App" */ = {
+		4C3139102DF84A6400647533 /* Build configuration list for PBXNativeTarget "PsychonautWiki Journal Watch App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4C31390E2DF84A6400647533 /* Debug */,

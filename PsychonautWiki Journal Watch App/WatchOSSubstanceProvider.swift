@@ -1,6 +1,6 @@
 //
 //  WatchOSSubstanceProvider.swift
-//  PsychonautWiki Journal Watch Watch App
+//  PsychonautWiki Journal Watch App
 //
 //  Created by Michael Young on 7/17/24.
 //
@@ -23,7 +23,7 @@ class WatchOSSubstanceProvider {
 
     func getSuggestions(for substanceName: String) -> [any SuggestionProtocol] {
         let sortedIngestions = getSortedIngestions(for: substanceName)
-        return PsychonautWiki_Journal_Watch_Watch_App.getSuggestions(
+        return PsychonautWiki_Journal_Watch_App.getSuggestions(
             sortedIngestions: sortedIngestions, customUnits: []
         )
         .filter { suggestion in
