@@ -40,9 +40,17 @@ struct SubstanceSelectionView: View {
     private var recentIngestions: FetchedResults<Ingestion>
 
     private var recentSubstances: [String] {
-        let recentSubstanceNames = Array(Set(recentIngestions.compactMap { $0.substanceName }))
-            .prefix(5)
-        return Array(recentSubstanceNames)
+        var uniqueSubstanceNames: [String] = []
+        var seenSubstanceNames = Set<String>()
+        for ingestion in recentIngestions {
+            if uniqueSubstanceNames.count >= 30 {
+                break
+            }
+            if let name = ingestion.substanceName, seenSubstanceNames.insert(name).inserted {
+                uniqueSubstanceNames.append(name)
+            }
+        }
+        return uniqueSubstanceNames
     }
 
     private var allSubstances: [String] {
