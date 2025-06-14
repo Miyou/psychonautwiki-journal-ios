@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with PsychonautWiki Journal. If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
 
+import CloudKit
 import CoreData
 import SwiftUI
-import CloudKit
 
 struct PersistenceController {
     static let shared = PersistenceController()
@@ -34,50 +34,98 @@ struct PersistenceController {
     static let areRedosesDrawnIndividuallyKey = "areRedosesDrawnIndividually"
     static let shouldAutomaticallyStartLiveActivityKey = "shouldAutomaticallyStartLiveActivity"
     static let independentSubstanceHeightKey = "independentSubstanceHeight"
-    static let lastIngestionTimeOfExperienceWhereAddIngestionTappedKey = "lastIngestionTimeOfExperienceWhereAddIngestionTapped"
+    static let lastIngestionTimeOfExperienceWhereAddIngestionTappedKey =
+        "lastIngestionTimeOfExperienceWhereAddIngestionTapped"
     static let clonedIngestionTimeKey = "clonedIngestionTimeKey"
+    static let iCloudSyncEnabledKey = "iCloudSyncEnabled"
+
     var viewContext: NSManagedObjectContext {
         container.viewContext
     }
 
     private static let modelName = "Main"
     private static let appGroupIdentifier = "group.com.isaakhanimann.journal"
+    private static let localStoreName = "\(modelName)-local.sqlite"
+    private static let cloudStoreName = "\(modelName)-cloud.sqlite"
+
+    private var localStoreDescription: NSPersistentStoreDescription {
+        let appGroupURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: PersistenceController.appGroupIdentifier)!
+        let localStoreURL = appGroupURL.appendingPathComponent(PersistenceController.localStoreName)
+        let description = NSPersistentStoreDescription(url: localStoreURL)
+        description.configuration = "Local"
+        #if APP_WIDGET
+            description.setOption(true as NSNumber, forKey: NSReadOnlyPersistentStoreOption)
+        #endif
+        return description
+    }
+
+    private var cloudStoreDescription: NSPersistentStoreDescription {
+        let appGroupURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: PersistenceController.appGroupIdentifier)!
+        let cloudStoreURL = appGroupURL.appendingPathComponent(PersistenceController.cloudStoreName)
+        let description = NSPersistentStoreDescription(url: cloudStoreURL)
+        description.configuration = "Cloud"
+
+        description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+        description.setOption(
+            true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+
+        let cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(
+            containerIdentifier: "iCloud.com.isaakhanimann.journal")
+        cloudKitContainerOptions.databaseScope = .private
+        description.cloudKitContainerOptions = cloudKitContainerOptions
+
+        #if APP_WIDGET
+            description.setOption(true as NSNumber, forKey: NSReadOnlyPersistentStoreOption)
+        #endif
+
+        return description
+    }
 
     init(inMemory: Bool = false) {
-        container = NSPersistentCloudKitContainer(name: PersistenceController.modelName)
+        guard
+            let modelURL = Bundle.main.url(
+                forResource: PersistenceController.modelName, withExtension: "momd"),
+            let model = NSManagedObjectModel(contentsOf: modelURL)
+        else {
+            fatalError("Failed to load Core Data model")
+        }
+
+        // Set up configurations on the model
+        model.setEntities(model.entities, forConfigurationName: "Local")
+        model.setEntities(model.entities, forConfigurationName: "Cloud")
+
+        container = NSPersistentCloudKitContainer(
+            name: PersistenceController.modelName, managedObjectModel: model)
 
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
         } else {
-            // Configure for CloudKit and App Groups
-            guard let description = container.persistentStoreDescriptions.first else {
-                fatalError("Failed to retrieve a persistent store description.")
+            // One-time migration for users updating to the version with the toggle
+            let migrationKey = "hasPerformedStoreLayoutMigration"
+            if !UserDefaults.standard.bool(forKey: migrationKey) {
+                migrateToOptionaliCloudStore(migrationKey: migrationKey)
             }
 
-            // Set up App Group shared container
-            if let appGroupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: PersistenceController.appGroupIdentifier) {
-                let storeURL = appGroupURL.appendingPathComponent("\(PersistenceController.modelName).sqlite")
-                description.url = storeURL
+            let iCloudSyncEnabled = UserDefaults.standard.bool(
+                forKey: PersistenceController.iCloudSyncEnabledKey)
+
+            if iCloudSyncEnabled {
+                container.persistentStoreDescriptions = [cloudStoreDescription]
+            } else {
+                container.persistentStoreDescriptions = [localStoreDescription]
             }
-
-            // Configure CloudKit and history tracking
-            description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
-            description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
-
-            #if os(iOS) || os(watchOS)
-            // CloudKit configuration for iOS and watchOS
-            let cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: "iCloud.com.isaakhanimann.journal")
-            cloudKitContainerOptions.databaseScope = .private
-            description.cloudKitContainerOptions = cloudKitContainerOptions
-            #endif
-
-            #if APP_WIDGET
-            description.setOption(true as NSNumber, forKey: NSReadOnlyPersistentStoreOption)
-            #endif
         }
 
         container.loadPersistentStores { _, error in
-            if let error = error {
+            if let error = error as NSError? {
+                if error.code == 134081 && error.domain == "NSCocoaErrorDomain" {
+                    // This can happen during migration if the store is already loaded.
+                    // We will ignore it here, as a restart is recommended anyway.
+                    print("Ignoring error 134081, assuming it's a post-migration artifact.")
+                    return
+                }
                 fatalError("Failed to load Core Data stack: \(error)")
             }
         }
@@ -116,8 +164,9 @@ struct PersistenceController {
             queue: .main
         ) { notification in
             guard let context = notification.object as? NSManagedObjectContext,
-                  context != viewContext,
-                  context.persistentStoreCoordinator == viewContext.persistentStoreCoordinator else {
+                context != viewContext,
+                context.persistentStoreCoordinator == viewContext.persistentStoreCoordinator
+            else {
                 return
             }
 
@@ -127,6 +176,214 @@ struct PersistenceController {
                 print("🔄 Background changes merged into view context")
             }
         }
+    }
+
+    func toggleiCloudSync(enabled: Bool, completion: @escaping (Error?) -> Void) {
+        if enabled {
+            enableiCloudSync(completion: completion)
+        } else {
+            disableiCloudSync(completion: completion)
+        }
+    }
+
+    private func enableiCloudSync(completion: @escaping (Error?) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let coordinator = self.container.persistentStoreCoordinator
+            guard let currentStore = coordinator.persistentStores.first,
+                let oldStoreURL = currentStore.url
+            else {
+                DispatchQueue.main.async {
+                    completion(
+                        NSError(
+                            domain: "PersistenceController", code: 1,
+                            userInfo: [NSLocalizedDescriptionKey: "No persistent store found."]))
+                }
+                return
+            }
+            let newDescription = self.cloudStoreDescription
+
+            do {
+                // Migrate the store from local to cloud
+                try coordinator.migratePersistentStore(
+                    currentStore, to: newDescription.url!, options: newDescription.options,
+                    withType: NSSQLiteStoreType)
+
+                self.container.persistentStoreDescriptions = [newDescription]
+                self.container.loadPersistentStores { _, error in
+                    if let error = error as NSError?,
+                        error.code == 134081 && error.domain == "NSCocoaErrorDomain"
+                    {
+                        print(
+                            "Ignoring error 134081 during toggle, assuming it's a post-migration artifact that will resolve on restart."
+                        )
+                        self.deleteStore(at: oldStoreURL)  // Clean up the old local store file
+                        DispatchQueue.main.async {
+                            completion(nil)  // Report success to user
+                        }
+                        return
+                    }
+
+                    if let error = error {
+                        DispatchQueue.main.async {
+                            completion(error)
+                        }
+                    } else {
+                        // Success! Clean up the old store file.
+                        self.deleteStore(at: oldStoreURL)
+                        DispatchQueue.main.async {
+                            completion(nil)
+                        }
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(error)
+                }
+            }
+        }
+    }
+
+    private func disableiCloudSync(completion: @escaping (Error?) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Step 1: Delete the CloudKit zone to wipe server data
+            let containerIdentifier = "iCloud.com.isaakhanimann.journal"
+            let container = CKContainer(identifier: containerIdentifier)
+            let database = container.privateCloudDatabase
+            let zoneID = CKRecordZone.ID(zoneName: "com.apple.coredata.cloudkit.zone")
+
+            database.delete(withRecordZoneID: zoneID) { _, error in
+                if let ckError = error as? CKError, ckError.code == .zoneNotFound {
+                    print(
+                        "CloudKit zone not found, which is okay when disabling sync. Proceeding with local migration."
+                    )
+                } else if let error = error {
+                    print("Failed to delete CloudKit zone: \(error)")
+                    DispatchQueue.main.async {
+                        completion(error)
+                    }
+                    return
+                } else {
+                    print("Successfully deleted CloudKit zone.")
+                }
+
+                // Step 2: Proceed with migrating the store from cloud to local
+                let coordinator = self.container.persistentStoreCoordinator
+                guard let currentStore = coordinator.persistentStores.first,
+                    let oldStoreURL = currentStore.url
+                else {
+                    DispatchQueue.main.async {
+                        completion(
+                            NSError(
+                                domain: "PersistenceController", code: 2,
+                                userInfo: [
+                                    NSLocalizedDescriptionKey:
+                                        "Store went away during cloud zone deletion."
+                                ]))
+                    }
+                    return
+                }
+                let newDescription = self.localStoreDescription
+
+                do {
+                    try coordinator.migratePersistentStore(
+                        currentStore, to: newDescription.url!, options: newDescription.options,
+                        withType: NSSQLiteStoreType)
+
+                    self.container.persistentStoreDescriptions = [newDescription]
+                    self.container.loadPersistentStores { _, error in
+                        if let error = error as NSError?,
+                            error.code == 134081 && error.domain == "NSCocoaErrorDomain"
+                        {
+                            print(
+                                "Ignoring error 134081 during toggle, assuming it's a post-migration artifact that will resolve on restart."
+                            )
+                            self.deleteStore(at: oldStoreURL)  // Clean up the old cloud store file
+                            DispatchQueue.main.async {
+                                completion(nil)  // Report success to user
+                            }
+                            return
+                        }
+
+                        if let error = error {
+                            DispatchQueue.main.async {
+                                completion(error)
+                            }
+                        } else {
+                            // Success! Clean up the old store file.
+                            self.deleteStore(at: oldStoreURL)
+                            DispatchQueue.main.async {
+                                completion(nil)
+                            }
+                        }
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        completion(error)
+                    }
+                }
+            }
+        }
+    }
+
+    private func deleteStore(at url: URL) {
+        let fileManager = FileManager.default
+        let storePath = url.path
+        let shmPath = storePath + "-shm"
+        let walPath = storePath + "-wal"
+
+        for path in [storePath, shmPath, walPath] {
+            if fileManager.fileExists(atPath: path) {
+                do {
+                    try fileManager.removeItem(atPath: path)
+                    print("Successfully deleted old store file at \(path)")
+                } catch {
+                    print("Failed to delete old store file at \(path): \(error)")
+                }
+            }
+        }
+    }
+
+    private func migrateToOptionaliCloudStore(migrationKey: String) {
+        let appGroupURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: PersistenceController.appGroupIdentifier)!
+        let oldStoreURL = appGroupURL.appendingPathComponent(
+            "\(PersistenceController.modelName).sqlite")
+        let cloudStoreURL = appGroupURL.appendingPathComponent(
+            PersistenceController.cloudStoreName)
+
+        let oldStoreExists = FileManager.default.fileExists(atPath: oldStoreURL.path)
+        let cloudStoreExists = FileManager.default.fileExists(atPath: cloudStoreURL.path)
+
+        if oldStoreExists || cloudStoreExists {
+            // User has existing data. Assume they were using iCloud.
+            UserDefaults.standard.set(
+                true, forKey: PersistenceController.iCloudSyncEnabledKey)
+
+            if oldStoreExists && !cloudStoreExists {
+                // Rename old store to new cloud store name
+                do {
+                    try FileManager.default.moveItem(at: oldStoreURL, to: cloudStoreURL)
+                    print("Successfully migrated pre-existing iCloud store name.")
+                } catch {
+                    print("Could not rename old store to cloud store: \(error)")
+                }
+            } else if oldStoreExists && cloudStoreExists {
+                // If both exist, the new one is the source of truth. Remove the old one.
+                do {
+                    try FileManager.default.removeItem(at: oldStoreURL)
+                    print("Removed redundant old store file.")
+                } catch {
+                    print("Could not remove redundant old store file: \(error)")
+                }
+            }
+        } else {
+            // A true new user with no data.
+            UserDefaults.standard.set(
+                false, forKey: PersistenceController.iCloudSyncEnabledKey)
+        }
+
+        // Mark migration as complete
+        UserDefaults.standard.set(true, forKey: migrationKey)
     }
 
     func deleteEverything() throws {
